@@ -55,7 +55,8 @@
                     android:background="@drawable/frame_shadow"
                     android:padding="5dp"
                     android:scaleType="centerInside"
-                    android:src="@drawable/camera_icon" />
+                    android:src="@drawable/camera_icon"
+                    />
 
                 <ImageView
                     android:id="@+id/paintimage"
@@ -88,6 +89,8 @@
                     android:padding="5dp"
                     android:src="@drawable/album_image" />
             </LinearLayout>
+
+
 
         </LinearLayout>
 
