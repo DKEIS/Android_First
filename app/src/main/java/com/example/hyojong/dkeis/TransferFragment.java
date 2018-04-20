@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.hyojong.dkeis.Adapter.StyleActivity;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +27,7 @@ public class TransferFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private TextView content;
     private ImageView selectImage;
+    private ImageView styleimage;
 
 
     private String absoultePath;
@@ -58,7 +61,7 @@ public class TransferFragment extends Fragment {
         content = (TextView) view.findViewById(R.id.content);
         content.setText("바꾸고 싶은 이미지를 집어넣어라!!");
         selectImage = (ImageView)view.findViewById(R.id.cameraimage);
-
+        styleimage = (ImageView)view.findViewById(R.id.paintimage);
 
         selectImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +69,14 @@ public class TransferFragment extends Fragment {
                 takeAlbumAction();
             }
         });
+        styleimage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), StyleActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 
@@ -136,6 +147,7 @@ public class TransferFragment extends Fragment {
                 }
                 break;
             default:
+                System.out.println("!!!!!1취소");
                 break;
         }
     }
