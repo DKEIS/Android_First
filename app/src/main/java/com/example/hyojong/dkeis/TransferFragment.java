@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.hyojong.dkeis.Adapter.StyleActivity;
 
 import java.io.BufferedOutputStream;
@@ -60,20 +61,26 @@ public class TransferFragment extends Fragment {
 
         content = (TextView) view.findViewById(R.id.content);
         content.setText("바꾸고 싶은 이미지를 집어넣어라!!");
+
+
         selectImage = (ImageView)view.findViewById(R.id.cameraimage);
+
         styleimage = (ImageView)view.findViewById(R.id.paintimage);
 
+        // 자신의 사진 선택
         selectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 takeAlbumAction();
             }
         });
+
+        //  Style 선택
         styleimage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), StyleActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,3);
             }
         });
 
@@ -117,7 +124,7 @@ public class TransferFragment extends Fragment {
         switch (requestCode) {
             case 1:
                 photoUri = data.getData();
-                Log.d("Get Photo", photoUri.getPath().toString());
+                //Log.d("Get Photo", photoUri.getPath().toString());
             case 0:
 
                 Intent intent = new Intent("com.android.camera.action.CROP");
@@ -135,8 +142,8 @@ public class TransferFragment extends Fragment {
 
             case 2:
                 final Bundle extras = data.getExtras();
-
                 String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS/" + System.currentTimeMillis() +".jpg";
+
                 if(extras != null) {
                     Bitmap photo = extras.getParcelable("data");
                     selectImage.setImageBitmap(photo);
@@ -146,6 +153,13 @@ public class TransferFragment extends Fragment {
 
                 }
                 break;
+            case 3:
+                Intent intents = data;
+                String url = intents.getStringExtra("url");
+                System.out.println("#############URL: " + url);
+                Glide.with(getContext()).load(url).into(styleimage);
+                break;
+
             default:
                 System.out.println("!!!!!1취소");
                 break;
