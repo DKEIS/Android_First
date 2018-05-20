@@ -15,7 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity" />
-
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,7 +33,8 @@
                 android:resource="@xml/file_path" />
         </provider>
 
-        <activity android:name=".Adapter.StyleActivity"></activity>
+        <activity android:name=".Adapter.StyleActivity" />
+        <activity android:name=".ChangeActivity"></activity>
     </application>
 
 </manifest>

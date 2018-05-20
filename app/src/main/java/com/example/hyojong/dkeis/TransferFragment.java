@@ -108,7 +108,7 @@ public class TransferFragment extends Fragment {
                 File f = new File(path);
                 Future uploading = Ion.with(getActivity())
                         //.load("http://192.168.150.1:8080/upload")
-                        .load("http://114.70.235.44:8888/upload")
+                        .load("http://114.70.234.172:3004/upload")
                         .setMultipartFile("image", f)
                         .setMultipartParameter("style", styleURL)
                         .asString()
@@ -118,11 +118,15 @@ public class TransferFragment extends Fragment {
                             public void onCompleted(Exception e, Response<String> result) {
                                 try {
 
-                                    userURL = "114.70.235.44:18081/capstone/upload/" + absoultePath.split("/")[absoultePath.split("/").length-1];
-                                    //System.out.println("@@@@@@@@@@@@@@@@@@@" + result.getResult());
+                                    userURL = "http://114.70.234.172:3004/transfer/trans-"+ (absoultePath.split("/")[absoultePath.split("/").length-1]);
+                                    //System.out.println("@@@@@@@@@@@@@@@@@@@" + userURL);
                                     String msg = result.getResult();
-                                    //JSONObject jobj = new JSONObject(result.getResult());
-                                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+
+                                    //Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(getActivity(), ChangeActivity.class);
+                                    intent.putExtra("msg", msg);
+                                    startActivity(intent);
 
                                 } catch (Exception e1) {
                                     e1.printStackTrace();
