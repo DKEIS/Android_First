@@ -210,29 +210,34 @@ public class TransferFragment extends Fragment {
 
         switch (requestCode) {
             case 1:
-                photoUri = data.getData();
+
+                try {
+                    photoUri = data.getData();
+                } catch (Exception e) { e.printStackTrace(); break;}
                 //styleURL = photoUri.getPath().toString();
-                Log.d("Get Photo", photoUri.getPath().toString());
+
             case 0:
 
                 Intent intent = new Intent("com.android.camera.action.CROP");
                 intent.setDataAndType(photoUri, "image/*");
 
                 intent.putExtra("outputX", 200);
-                intent.putExtra("outputY",200);
-                intent.putExtra("aspectX", 1);
-                intent.putExtra("aspectY", 1);
+                intent.putExtra("outputY", 200);
+                //intent.putExtra("aspectX", 1);
+                //intent.putExtra("aspectY", 1);
                 intent.putExtra("scale", true);
-                intent.putExtra("return-data",true);
+                intent.putExtra("return-data", true);
+
                 startActivityForResult(intent, 2);
 
                 break;
 
             case 2:
                 final Bundle extras = data.getExtras();
-                String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS/" + System.currentTimeMillis() +".jpg";
+                String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS/" + System.currentTimeMillis() + ".jpg";
+                //String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS/" + "Test" +".jpg";
 
-                if(extras != null) {
+                if (extras != null) {
                     Bitmap photo = extras.getParcelable("data");
                     selectImage.setImageBitmap(photo);
                     storeCropImage(photo, filepath);
@@ -243,9 +248,16 @@ public class TransferFragment extends Fragment {
                 break;
             case 3:
                 Intent intents = data;
-                String url = intents.getStringExtra("url");
-                styleURL = url;
-                Glide.with(getContext()).load(url).into(styleimage);
+                String url = null;
+                try {
+                    intents.getStringExtra("url");
+
+                    styleURL = url;
+                    Glide.with(getContext()).load(url).into(styleimage);
+                   }
+                catch (Exception e) {
+                e.printStackTrace();
+            }
                 break;
 
             default:
