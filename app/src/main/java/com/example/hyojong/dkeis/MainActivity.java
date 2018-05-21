@@ -29,7 +29,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import org.w3c.dom.Text;
 
-
 public class MainActivity extends AppCompatActivity{
     private String userUid;
     private ActionBar actionBar;
@@ -42,8 +41,9 @@ public class MainActivity extends AppCompatActivity{
         actionBar = getSupportActionBar();
         actionBar.hide();
 
-        Intent intent = getIntent();
-        userUid = intent.getStringExtra("userUid");
+        //Intent intent = getIntent();
+        //userUid = intent.getStringExtra("userUid");
+
 
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(getSupportFragmentManager());
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -52,8 +52,4 @@ public class MainActivity extends AppCompatActivity{
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
     }
-
-
-
-
 }
