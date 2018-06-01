@@ -1,10 +1,14 @@
 package com.example.hyojong.dkeis;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +27,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
     private GoogleApiClient mGoogleApiClient;
@@ -97,9 +103,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         if (task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, "접속 완료", Toast.LENGTH_SHORT).show();
                             user = mAuth.getCurrentUser();
+
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra("userUid", user.getUid());
                             startActivity(intent);
+
+                            /*
+                            PackageManager packageManager = getPackageManager();
+                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            Log.d("onComplete: ", String.valueOf(intent));
+                            List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                            */
+
                         } else {
 
                         }

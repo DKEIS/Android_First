@@ -81,7 +81,6 @@ public class ChangeActivity extends AppCompatActivity {
         protected Void doInBackground(Void... arg0) {
             while (!isExists(userURL))
                 Log.d("#######doInBackground: ", String.valueOf(isExists(userURL)));
-            Log.d("#####성공함?: ", "알ㄴㅇ러ㅏㅁㄴ어리ㅏㄴ멍ㄹ");
             return null;
         }
 
