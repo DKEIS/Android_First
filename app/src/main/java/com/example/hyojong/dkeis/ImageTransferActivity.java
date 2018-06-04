@@ -132,7 +132,9 @@ public class ImageTransferActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case 1:
-                photoUri = data.getData();
+                try {
+                    photoUri = data.getData();
+                } catch (Exception e) { e.printStackTrace(); break; }
                 //styleURL = photoUri.getPath().toString();
                 Log.d("Get Photo", photoUri.getPath().toString());
             case 0:
@@ -165,9 +167,16 @@ public class ImageTransferActivity extends AppCompatActivity {
                 break;
             case 3:
                 Intent intents = data;
-                String url = intents.getStringExtra("url");
-                styleURL = url;
-                Glide.with(ImageTransferActivity.this).load(url).into(styleimage);
+                String url = null;
+                try {
+                    intents.getStringExtra("url");
+
+                    styleURL = url;
+                    Glide.with(ImageTransferActivity.this).load(url).into(styleimage);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
 
             default:
