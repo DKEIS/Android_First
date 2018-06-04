@@ -34,7 +34,9 @@
         </provider>
 
         <activity android:name=".Adapter.StyleActivity" />
-        <activity android:name=".ChangeActivity"></activity>
+        <activity android:name=".ChangeActivity" />
+        <activity android:name=".ImageTransferActivity" />
+        <activity android:name=".CycleGanActivity"></activity>
     </application>
 
 </manifest>
