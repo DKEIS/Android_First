@@ -72,15 +72,15 @@ public class ChangeActivity extends AppCompatActivity {
         downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String storeName;
                 OutputStream outStream = null;
 
+                storeName = userURL.split("/")[userURL.split("/").length-1] + ".jpg";
 
                 String extStorageDirectory =  Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS/";
 
-                //String extStorageDirectory =  Environment.getExternalStorageDirectory().toString()+"/Download/";
                 System.out.println("**********DIR: " + extStorageDirectory);
-                File file = new File(extStorageDirectory, "downimage.jpg");
+                File file = new File(extStorageDirectory, storeName);
                 //storeCropImage(GetImageFromURL(userURL),extStorageDirectory);
 
                 try {
@@ -104,8 +104,9 @@ public class ChangeActivity extends AppCompatActivity {
                 }
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Images.Media.DATA,
-                        extStorageDirectory + "downimage.jpg");
-                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                        extStorageDirectory + storeName);
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
                 getContentResolver().insert(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
