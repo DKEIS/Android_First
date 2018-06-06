@@ -75,11 +75,11 @@ public class ChangeActivity extends AppCompatActivity {
                 String storeName;
                 OutputStream outStream = null;
 
-                storeName = userURL.split("/")[userURL.split("/").length-1] + ".jpg";
+                storeName = userURL.split("/")[userURL.split("/").length-1];
 
                 String extStorageDirectory =  Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS/";
 
-                System.out.println("**********DIR: " + extStorageDirectory);
+                //System.out.println("**********DIR: " + extStorageDirectory);
                 File file = new File(extStorageDirectory, storeName);
                 //storeCropImage(GetImageFromURL(userURL),extStorageDirectory);
 
