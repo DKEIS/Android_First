@@ -53,12 +53,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             public void onClick(View v) {
 
 
-                Toast.makeText(context, item.getTitle(), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(context, item.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent();
                 intent.putExtra("url",item.getImgae_url());
                 intent.putExtra("test", 33);
                 ((Activity)context).setResult(Activity.RESULT_OK, intent);
-                System.out.println("@@@@@@@@@@@@@@"+ item.getImgae_url());
+                //System.out.println("@@@@@@@@@@@@@@"+ item.getImgae_url());
 
                 ((Activity)context).finish();
 

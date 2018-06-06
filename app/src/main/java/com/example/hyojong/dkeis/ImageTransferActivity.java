@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.hyojong.dkeis.Adapter.StyleActivity;
@@ -80,42 +81,43 @@ public class ImageTransferActivity extends AppCompatActivity {
         changeImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Node.js or JSP 파일 업로드[][][][][][][][][][][][][]][][][][][][][]
-                // 1) User Image 웹 서버에 업로드, 2) Style URL 전송, 3) Node js 호출?
-                //path = getPathFromURI(selectImage.set);
-                path = absoultePath;
-                //System.out.println("###############PATH: " + path);
-                File f = new File(path);
-                com.koushikdutta.async.future.Future uploading = Ion.with(ImageTransferActivity.this)
-                        //.load("http://192.168.150.1:8080/upload")
-                        .load("http://114.70.234.172:3004/upload")
-                        .setMultipartFile("image", f)
-                        .setMultipartParameter("style", styleURL)
-                        .asString()
-                        .withResponse()
-                        .setCallback(new FutureCallback<com.koushikdutta.ion.Response<String>>() {
-                            @Override
-                            public void onCompleted(Exception e, com.koushikdutta.ion.Response<String> result) {
-                                try {
+                //System.out.println("****************PATH: " + absoultePath + "  styleURL : " + styleURL);
+                if (absoultePath == null || styleURL == null) {
+                    Toast.makeText(ImageTransferActivity.this, "사진 선택해 주세요", Toast.LENGTH_SHORT).show();
+                } else {
+                    path = absoultePath;
+                    File f = new File(path);
+                    com.koushikdutta.async.future.Future uploading = Ion.with(ImageTransferActivity.this)
+                            //.load("http://192.168.150.1:8080/upload")
+                            .load("http://114.70.234.172:3004/upload")
+                            .setMultipartFile("image", f)
+                            .setMultipartParameter("style", styleURL)
+                            .asString()
+                            .withResponse()
+                            .setCallback(new FutureCallback<com.koushikdutta.ion.Response<String>>() {
+                                @Override
+                                public void onCompleted(Exception e, com.koushikdutta.ion.Response<String> result) {
+                                    try {
 
-                                    userURL = "http://114.70.234.172:3004/transfer/trans-"+ (absoultePath.split("/")[absoultePath.split("/").length-1]);
-                                    //System.out.println("@@@@@@@@@@@@@@@@@@@" + userURL);
-                                    String msg = result.getResult();
+                                        userURL = "http://114.70.234.172:3004/transfer/trans-" + (absoultePath.split("/")[absoultePath.split("/").length - 1]);
+                                        //System.out.println("@@@@@@@@@@@@@@@@@@@" + userURL);
+                                        String msg = result.getResult();
 
-                                    //Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
 
-                                    Intent intent = new Intent(ImageTransferActivity.this, ChangeActivity.class);
-                                    intent.putExtra("msg", msg);
-                                    intent.putExtra("userURL", userURL);
-                                    startActivity(intent);
+                                        Intent intent = new Intent(ImageTransferActivity.this, ChangeActivity.class);
+                                        intent.putExtra("msg", msg);
+                                        intent.putExtra("userURL", userURL);
+                                        startActivity(intent);
 
-                                } catch (Exception e1) {
-                                    e1.printStackTrace();
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                    }
+
                                 }
+                            });
 
-                            }
-                        });
-
+                }
             }
         });
     }
@@ -161,7 +163,7 @@ public class ImageTransferActivity extends AppCompatActivity {
                     selectImage.setImageBitmap(photo);
                     storeCropImage(photo, filepath);
                     absoultePath = filepath;
-                    //System.out.println("#########FILEPATH:" + absoultePath);
+                    System.out.println("#########FILEPATH:" + absoultePath);
 
                 }
                 break;
@@ -169,8 +171,8 @@ public class ImageTransferActivity extends AppCompatActivity {
                 Intent intents = data;
                 String url = null;
                 try {
-                    intents.getStringExtra("url");
-
+                    url = intents.getStringExtra("url");
+                    System.out.println(url);
                     styleURL = url;
                     Glide.with(ImageTransferActivity.this).load(url).into(styleimage);
                 }
