@@ -3,4 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name = "kakao_app_key">fb4099513dbdea4306e2ade5c61bf235</string>
+    <string name="kakao_scheme">kakaofb4099513dbdea4306e2ade5c61bf235</string>
+    <string name="kakaolink_host">kakaolink</string>
 </resources>

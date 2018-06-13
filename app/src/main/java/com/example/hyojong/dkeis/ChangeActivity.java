@@ -14,11 +14,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.kakao.AppActionBuilder;
+import com.kakao.KakaoLink;
+import com.kakao.KakaoParameterException;
+import com.kakao.KakaoTalkLinkMessageBuilder;
+import com.kakao.exception.KakaoException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -32,6 +38,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+
 public class ChangeActivity extends AppCompatActivity {
 
     private TextView changeText;
@@ -39,21 +46,52 @@ public class ChangeActivity extends AppCompatActivity {
     private String msg;
     private String userURL;
     private Button downloadBtn;
+    private ImageButton kakaoBtn;
     Bitmap mSaveBm;
+
+    private KakaoLink kakaoLink;
+    private KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change);
+        final String kakaoURL = "http://114.70.235.44:18081/capstone/style/1.jpg";
+        final String kakaoText = "테스트";
+        final String kakaoURLtest = "http://114.70.235.44:18081/capstone/style/1.jpg";
 
+        try {
+            kakaoLink = KakaoLink.getKakaoLink(ChangeActivity.this);
+            kakaoTalkLinkMessageBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /* 카카오 링크 API */
+        kakaoBtn = (ImageButton)findViewById(R.id.kakaoBtn);
+        kakaoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    kakaoTalkLinkMessageBuilder.addText(kakaoText);
+                    kakaoTalkLinkMessageBuilder.addImage(kakaoURL, 320, 320);
+                    kakaoTalkLinkMessageBuilder.addWebLink(kakaoURLtest);
+                    kakaoTalkLinkMessageBuilder.addAppButton("앱열기",
+                            new AppActionBuilder().setAndroidExecuteURLParam("target=main").
+                                    setIOSExecuteURLParam("target=main",AppActionBuilder.DEVICE_TYPE.PHONE).build());
+                } catch (KakaoParameterException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         /*
         msg = getIntent().getStringExtra("msg");
         changeText = (TextView)findViewById(R.id.changeText);
         changeText.setText(msg);*/
 
-        msg = getIntent().getStringExtra("msg");
+      //  msg = getIntent().getStringExtra("msg");
         userURL = getIntent().getStringExtra("userURL");
         changeText = (TextView)findViewById(R.id.changeText);
-        changeText.setText(msg);
+       // changeText.setText(msg);
 
         downloadBtn = (Button)findViewById(R.id.downloadBtn);
 
@@ -204,6 +242,8 @@ public class ChangeActivity extends AppCompatActivity {
         protected Void doInBackground(Void... arg0) {
             while (!isExists(userURL))
                 Log.d("#######doInBackground: ", String.valueOf(isExists(userURL)));
+            // 사진 용량이 커서 사이트에서 불러올 시간이 필요..
+            try { Thread.sleep(1000); } catch (Exception e) { e.printStackTrace(); }
             return null;
         }
 
