@@ -24,8 +24,7 @@
         </activity>
         <activity android:name=".ChangeActivity" />
         <activity android:name=".Adapter.StyleActivity" />
-        <activity android:name=".ImageTransferActivity"
-            android:theme="@style/Theme.Transparent"/>
+        <activity android:name=".ImageTransferActivity" />
         <activity android:name=".CycleGanActivity"></activity>
     </application>
 
