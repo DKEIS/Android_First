@@ -107,7 +107,7 @@ public class ChangeActivity extends AppCompatActivity {
         //  msg = getIntent().getStringExtra("msg");
         userURL = getIntent().getStringExtra("userURL");
 
-        downloadBtn = (Button)findViewById(R.id.downloadBtn);
+        //downloadBtn = (Button)findViewById(R.id.downloadBtn);
 
         LoadImageTask loadImageTask = new LoadImageTask();
         loadImageTask.execute();
