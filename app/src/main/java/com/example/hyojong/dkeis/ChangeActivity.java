@@ -9,9 +9,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -49,6 +52,7 @@ public class ChangeActivity extends AppCompatActivity {
     private String userURL;
     private Button downloadBtn;
     private ImageButton kakaoBtn;
+    private FloatingActionButton storeFAB;
     Bitmap mSaveBm;
 
     /*
@@ -63,6 +67,11 @@ public class ChangeActivity extends AppCompatActivity {
         final String kakaoURL = "http://114.70.235.44:18081/capstone/style/1.jpg";
         final String kakaoText = "테스트";
         final String kakaoURLtest = "http://114.70.235.44:18081/capstone/style/1.jpg";
+
+        Toolbar changeToolbar = (Toolbar) findViewById(R.id.changeToolbar);
+        setSupportActionBar(changeToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("편집 완료");
 
         /*
         try {
@@ -97,8 +106,6 @@ public class ChangeActivity extends AppCompatActivity {
 
         //  msg = getIntent().getStringExtra("msg");
         userURL = getIntent().getStringExtra("userURL");
-        changeText = (TextView)findViewById(R.id.changeText);
-        // changeText.setText(msg);
 
         downloadBtn = (Button)findViewById(R.id.downloadBtn);
 
@@ -114,6 +121,57 @@ public class ChangeActivity extends AppCompatActivity {
         OpenHttpConnection opHttpCon = new OpenHttpConnection();
         opHttpCon.execute(changeImage, userURL);
 
+        storeFAB = (FloatingActionButton) findViewById(R.id.storeFAB);
+        storeFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String storeName;
+                OutputStream outStream = null;
+
+                storeName = userURL.split("/")[userURL.split("/").length - 1];
+
+                String extStorageDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS/";
+
+                //System.out.println("**********DIR: " + extStorageDirectory);
+                File file = new File(extStorageDirectory, storeName);
+                //storeCropImage(GetImageFromURL(userURL),extStorageDirectory);
+
+                try {
+                    outStream = new FileOutputStream(file);
+                    mSaveBm.compress(
+                            Bitmap.CompressFormat.PNG, 100, outStream);
+                    outStream.flush();
+                    outStream.close();
+
+                    Toast.makeText(ChangeActivity.this,
+                            "Saved", Toast.LENGTH_LONG).show();
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(ChangeActivity.this,
+                            e.toString(), Toast.LENGTH_LONG).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(ChangeActivity.this,
+                            e.toString(), Toast.LENGTH_LONG).show();
+                }
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DATA,
+                        extStorageDirectory + storeName);
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                getContentResolver().insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+
+                /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(userURL));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);*/
+                Toast.makeText(ChangeActivity.this, "저장", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        /*
         downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,13 +216,23 @@ public class ChangeActivity extends AppCompatActivity {
 
                 /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(userURL));
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);*/
+                startActivity(intent);*
                 Toast.makeText(ChangeActivity.this, "저장", Toast.LENGTH_SHORT).show();
             }
-        });
-
-
+        });*/
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
+                finish();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private Bitmap GetImageFromURL(String imgaeURL) {
         Bitmap imgBitmap = null;
 
@@ -183,6 +251,7 @@ public class ChangeActivity extends AppCompatActivity {
         }
         return  imgBitmap;
     }
+
     private void storeCropImage(Bitmap bitmap, String filePath){
         String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DKEIS";
         File directory_DKEIS = new File(dirPath);

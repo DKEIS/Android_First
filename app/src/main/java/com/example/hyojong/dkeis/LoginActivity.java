@@ -43,8 +43,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        actionBar = getSupportActionBar();
-        actionBar.hide();
+        //actionBar = getSupportActionBar();
+        //actionBar.hide();
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -106,14 +106,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra("userUid", user.getUid());
+                            intent.putExtra("userEmail", user.getEmail());
+                            intent.putExtra("userPhotoUrl", user.getPhotoUrl());
                             startActivity(intent);
-
-                            /*
-                            PackageManager packageManager = getPackageManager();
-                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            Log.d("onComplete: ", String.valueOf(intent));
-                            List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-                            */
 
                         } else {
 

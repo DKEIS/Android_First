@@ -1,5 +1,6 @@
 package com.example.hyojong.dkeis;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,12 +9,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +46,8 @@ public class ImageTransferActivity extends AppCompatActivity {
     private TextView content;
     private ImageView selectImage;
     private ImageView styleimage;
-    private ImageView changeImage;
+
+    private Button changeButton;
 
     private String path, userURL, styleURL;
     private String filePath;
@@ -51,31 +59,49 @@ public class ImageTransferActivity extends AppCompatActivity {
 
     private final int CAMERA_REQUEST_CODE = 1111;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_transfer);
 
-        //actionBar = getSupportActionBar();
-        //actionBar.hide();
+        Toolbar transferToolbar = (Toolbar) findViewById(R.id.transferToolbar);
+        setSupportActionBar(transferToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Style Transfer Page");
 
         Intent intent = getIntent();
         userUid = intent.getStringExtra("userUid");
 
-        content = (TextView) findViewById(R.id.content);
-        content.setText("바꾸고 싶은 이미지를 집어넣어라!!");
-
         selectImage = (ImageView)findViewById(R.id.cameraimage);
         styleimage = (ImageView)findViewById(R.id.paintimage);
-        changeImage = (ImageView)findViewById(R.id.albumimage);
+        changeButton = (Button)findViewById(R.id.changeButton);
+
 
         // 자신의 사진 선택
         selectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //takeAlbumAction();
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, CAMERA_REQUEST_CODE);
+                String imageSelect[] = new String[] {"사진 촬영", "앨범에서 가져오기"};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ImageTransferActivity.this);
+                builder.setTitle("이미지 선택");
+                builder.setItems(imageSelect, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch(which) {
+                            case 0:
+                                takeCameraAction();
+                                break;
+                            case 1:
+                                takeAlbumAction();
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+
+                });
+                builder.show();
             }
         });
 
@@ -89,7 +115,7 @@ public class ImageTransferActivity extends AppCompatActivity {
         });
 
         // 변환
-        changeImage.setOnClickListener(new View.OnClickListener() {
+        changeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //System.out.println("****************PATH: " + absoultePath + "  styleURL : " + styleURL);
@@ -133,6 +159,21 @@ public class ImageTransferActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
+                finish();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void takeCameraAction() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, CAMERA_REQUEST_CODE);
+    }
     public void takeAlbumAction() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
@@ -243,6 +284,7 @@ public class ImageTransferActivity extends AppCompatActivity {
                 cameraIntent.setDataAndType(photoUri, "image/*");
 
                 startActivityForResult(cameraIntent, 2);
+
             default:
                 System.out.println("!!!!!1취소");
                 break;

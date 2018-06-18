@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.hyojong.dkeis.LoginActivity"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/background_img">
 
     <TextView
         android:id="@+id/text1"
