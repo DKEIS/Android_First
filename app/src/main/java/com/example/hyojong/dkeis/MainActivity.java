@@ -5,6 +5,8 @@ import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,15 +27,26 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.hyojong.dkeis.MainRecyclerAdapter.MainListAdapter;
 import com.example.hyojong.dkeis.MainRecyclerAdapter.MainListItem;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
     private String userUid, userEmail, userPhotoUrl;
     private Toolbar mainToolbar;
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
+
+    private FirebaseAuth firebaseAuth;
+    private static final int RC_SIGN_IN = 9001;
+    private GoogleApiClient googleApiClient;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -64,16 +77,10 @@ public class MainActivity extends AppCompatActivity{
 
                 int id = menuItem.getItemId();
                 switch (id) {
-                    case R.id.navigation_item_attachment:
-                        Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
-                        break;
-
-                    case R.id.navigation_item_images:
-                        Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
-                        break;
-
                     case R.id.navigation_item_location:
-                        Toast.makeText(MainActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
+                        moveTaskToBack(true);
+                        finish();
+                        android.os.Process.killProcess(android.os.Process.myPid());
                         break;
                 }
 
@@ -112,5 +119,10 @@ public class MainActivity extends AppCompatActivity{
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.v("알림", "onConnectionFailed");
     }
 }

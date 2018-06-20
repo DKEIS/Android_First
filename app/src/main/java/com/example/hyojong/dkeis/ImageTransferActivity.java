@@ -126,7 +126,7 @@ public class ImageTransferActivity extends AppCompatActivity {
                     File f = new File(path);
                     com.koushikdutta.async.future.Future uploading = Ion.with(ImageTransferActivity.this)
                             //.load("http://192.168.150.1:8080/upload")
-                            .load("http://114.70.234.172:3004/upload")
+                            .load("http://114.70.234.121:3004/upload")
                             .setMultipartFile("image", f)
                             .setMultipartParameter("style", styleURL)
                             .asString()
@@ -136,7 +136,7 @@ public class ImageTransferActivity extends AppCompatActivity {
                                 public void onCompleted(Exception e, com.koushikdutta.ion.Response<String> result) {
                                     try {
 
-                                        userURL = "http://114.70.234.172:3004/transfer/trans-" + (absoultePath.split("/")[absoultePath.split("/").length - 1]);
+                                        userURL = "http://114.70.234.121:3004/transfer/trans-" + (absoultePath.split("/")[absoultePath.split("/").length - 1]);
                                         //System.out.println("@@@@@@@@@@@@@@@@@@@" + userURL);
                                         //String msg = result.getResult();
 

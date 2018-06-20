@@ -1,14 +1,11 @@
 package com.example.hyojong.dkeis;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.provider.MediaStore;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +25,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import java.util.List;
-
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 10;
@@ -37,6 +32,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     private FirebaseUser user;
     private TextView text1, text2;
     private ActionBar actionBar;
+
+    private boolean saveLoginData;
+    private SharedPreferences appData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
