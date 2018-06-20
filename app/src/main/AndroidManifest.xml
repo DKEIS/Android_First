@@ -39,6 +39,8 @@
         <meta-data android:name="com.kakao.sdk.AppKey" android:value="@string/kakao_app_key"/>
         <activity android:name=".ImageTransferActivity" />
         <activity android:name=".CycleGanActivity"></activity>
+        <meta-data android:name="com.kakao.sdk.Appkey"
+            android:value="@string/kakao_app_key" />
     </application>
 
 </manifest>

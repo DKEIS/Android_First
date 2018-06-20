@@ -1,5 +1,6 @@
 package com.example.hyojong.dkeis;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,12 +44,14 @@ public class ImageTransferActivity extends AppCompatActivity {
     private String path, userURL, styleURL;
     private String filePath;
     private String absoultePath;
+
     Uri photoUri;
     private String currentPhotoPath;//실제 사진 파일 경로
     String mImageCaptureName;//이미지 이름
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_transfer);
 
@@ -86,15 +89,13 @@ public class ImageTransferActivity extends AppCompatActivity {
         changeImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //System.out.println("****************PATH: " + absoultePath + "  styleURL : " + styleURL);
                 if (absoultePath == null || styleURL == null) {
                     Toast.makeText(ImageTransferActivity.this, "사진 선택해 주세요", Toast.LENGTH_SHORT).show();
                 } else {
                     path = absoultePath;
                     File f = new File(path);
                     com.koushikdutta.async.future.Future uploading = Ion.with(ImageTransferActivity.this)
-                            //.load("http://192.168.150.1:8080/upload")
-                            .load("http://114.70.234.172:3004/upload")
+                            .load("http://114.70.234.121:3004/upload")
                             .setMultipartFile("image", f)
                             .setMultipartParameter("style", styleURL)
                             .asString()
@@ -103,8 +104,8 @@ public class ImageTransferActivity extends AppCompatActivity {
                                 @Override
                                 public void onCompleted(Exception e, com.koushikdutta.ion.Response<String> result) {
                                     try {
-
-                                        userURL = "http://114.70.234.172:3004/transfer/trans-" + (absoultePath.split("/")[absoultePath.split("/").length - 1]);
+                                        System.out.println("************* 2");
+                                        userURL = "http://114.70.234.121:3004/transfer/trans-" + (absoultePath.split("/")[absoultePath.split("/").length - 1]);
                                         //System.out.println("@@@@@@@@@@@@@@@@@@@" + userURL);
                                         //String msg = result.getResult();
 
@@ -113,15 +114,14 @@ public class ImageTransferActivity extends AppCompatActivity {
                                         Intent intent = new Intent(ImageTransferActivity.this, ChangeActivity.class);
                                         //intent.putExtra("msg", msg);
                                         intent.putExtra("userURL", userURL);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
 
                                     } catch (Exception e1) {
                                         e1.printStackTrace();
                                     }
-
                                 }
                             });
-
                 }
             }
         });

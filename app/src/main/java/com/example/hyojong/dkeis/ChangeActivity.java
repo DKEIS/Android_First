@@ -1,8 +1,15 @@
 package com.example.hyojong.dkeis;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -11,6 +18,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,11 +28,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.kakao.AppActionBuilder;
-import com.kakao.KakaoLink;
-import com.kakao.KakaoParameterException;
-import com.kakao.KakaoTalkLinkMessageBuilder;
-import com.kakao.exception.KakaoException;
+import com.kakao.kakaolink.KakaoLink;
+import com.kakao.kakaolink.KakaoTalkLinkMessageBuilder;
+import com.kakao.kakaolink.internal.KakaoTalkLinkProtocol;
+import com.kakao.kakaolink.v2.KakaoLinkResponse;
+import com.kakao.kakaolink.v2.KakaoLinkService;
+import com.kakao.message.template.ButtonObject;
+import com.kakao.message.template.ContentObject;
+import com.kakao.message.template.FeedTemplate;
+import com.kakao.message.template.LinkObject;
+import com.kakao.message.template.ListTemplate;
+import com.kakao.message.template.SocialObject;
+import com.kakao.message.template.TemplateParams;
+import com.kakao.message.template.TextTemplate;
+import com.kakao.network.ErrorResult;
+import com.kakao.network.callback.ResponseCallback;
+import com.kakao.network.storage.ImageUploadResponse;
+import com.kakao.util.KakaoParameterException;
+import com.kakao.util.helper.TalkProtocol;
+import com.kakao.util.helper.log.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -37,6 +59,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 
 public class ChangeActivity extends AppCompatActivity {
@@ -48,25 +72,28 @@ public class ChangeActivity extends AppCompatActivity {
     private Button downloadBtn;
     private ImageButton kakaoBtn;
     Bitmap mSaveBm;
-
-    private KakaoLink kakaoLink;
-    private KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder;
+    Context context;
+    String linkURL;
+   // private KakaoLink kakaoLink;
+  //  private KakaoTalkLinkMessageBuilder kakaoTalkLinkMessageBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = ChangeActivity.this;
+
         setContentView(R.layout.activity_change);
         final String kakaoURL = "http://114.70.235.44:18081/capstone/style/1.jpg";
         final String kakaoText = "테스트";
         final String kakaoURLtest = "http://114.70.235.44:18081/capstone/style/1.jpg";
 
-        try {
+       /* try {
             kakaoLink = KakaoLink.getKakaoLink(ChangeActivity.this);
             kakaoTalkLinkMessageBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /* 카카오 링크 API */
+        // 카카오 링크 API
         kakaoBtn = (ImageButton)findViewById(R.id.kakaoBtn);
         kakaoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,13 +109,84 @@ public class ChangeActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
         /*
         msg = getIntent().getStringExtra("msg");
         changeText = (TextView)findViewById(R.id.changeText);
         changeText.setText(msg);*/
 
       //  msg = getIntent().getStringExtra("msg");
+        kakaoBtn = (ImageButton) findViewById(R.id.kakaoBtn);
+        kakaoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+                    KakaoLinkService.getInstance().scrapImage(ChangeActivity.this, true, userURL, new ResponseCallback<ImageUploadResponse>() {
+                        @Override
+                        public void onFailure(ErrorResult errorResult) {
+                            System.out.println("FAIL*******");
+                            Logger.e(errorResult.toString());
+                        }
+
+                        @Override
+                        public void onSuccess(ImageUploadResponse result) {
+                            linkURL = result.getOriginal().getUrl();
+                            System.out.println("SUC********" + result.getOriginal().getUrl());
+                            Logger.d("************"+result.getOriginal().getUrl());
+                        }
+                    });
+                    /*KakaoLink kakaoLink = KakaoLink.getKakaoLink(ChangeActivity.this);
+                    KakaoTalkLinkMessageBuilder msgBuilder = kakaoLink.createKakaoTalkLinkMessageBuilder();
+                    //msgBuilder.addText("카카오톡을로 공유");
+                    msgBuilder.addWebLink(kakaoURLtest);
+                    msgBuilder.addWebButton("보러 가기", null);
+                    kakaoLink.sendMessage(msgBuilder, context);
+                    //sendMessage(msgBuilder, context);
+                   // kakaoLink.sendMessage(msgBuilder, getApplicationContext());
+*/                  linkURL = "http:114.70.234.121:3004";
+                    String test = "/main/ranking/read.nhn?mid=etc&sid1=111&rankingType=popular_day&oid=052&aid=0001159495&date=20180620&type=2&rankingSeq=1&rankingSectionId=100";
+
+                    FeedTemplate params = FeedTemplate
+                            .newBuilder(ContentObject.newBuilder("제가 꾸민 사진이에요!",
+                                    userURL,
+                                    LinkObject.newBuilder().setWebUrl(linkURL)
+                                            .setMobileWebUrl(linkURL).build())
+                                    .setDescrption("사진 바꾸기, 딥러닝")
+                                    .build())
+                            //.setSocial(SocialObject.newBuilder().setLikeCount(10).setCommentCount(20)
+                            //        .setSharedCount(30).setViewCount(40).build())
+                           // .addButton(new ButtonObject("웹에서 보기", LinkObject.newBuilder().setWebUrl(linkURL).setMobileWebUrl(linkURL).build()))
+
+                           // .addButton(new ButtonObject("보러가기",))
+
+                            .build();
+
+                    KakaoLinkService.getInstance().sendDefault(ChangeActivity.this, params, new ResponseCallback<KakaoLinkResponse>() {
+                        @Override
+                        public void onFailure(ErrorResult errorResult) {
+                            Logger.e(errorResult.toString());
+                        }
+
+                        @Override
+                        public void onSuccess(KakaoLinkResponse result) {
+                            Logger.d(result.toString());
+                        }
+                    });
+
+
+
+                } catch (Exception e) { e.printStackTrace(); }
+
+
+
+
+            }
+
+
+
+
+        });
         userURL = getIntent().getStringExtra("userURL");
         changeText = (TextView)findViewById(R.id.changeText);
        // changeText.setText(msg);
@@ -196,6 +294,36 @@ public class ChangeActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    public void sendMessage(final KakaoTalkLinkMessageBuilder builder, final Context context) throws KakaoParameterException {
+        final Intent intent = TalkProtocol.createKakakoTalkLinkIntent(context, builder.build());
+        if (intent == null) {
+            //alert install dialog
+            new AlertDialog.Builder(context)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage(context.getString(R.string.com_kakao_alert_install_kakaotalk))
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent marketIntent;
+                            try {
+                                marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(KakaoTalkLinkProtocol.TALK_MARKET_URL_PREFIX));
+                                marketIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                context.startActivity(marketIntent);
+                            } catch (ActivityNotFoundException e) {
+                                marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(KakaoTalkLinkProtocol.TALK_MARKET_URL_PREFIX));
+                                marketIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                context.startActivity(marketIntent);
+                            }
+                        }
+                    })
+                    .create().show();
+
+        } else {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+
         }
     }
 
