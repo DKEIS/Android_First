@@ -1,7 +1,10 @@
 package com.example.hyojong.dkeis;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
@@ -9,7 +12,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -37,6 +43,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.security.auth.login.LoginException;
 
 
 public class ImageTransferActivity extends AppCompatActivity {
@@ -53,11 +63,11 @@ public class ImageTransferActivity extends AppCompatActivity {
     private String filePath;
     private String absoultePath;
 
-    Uri photoUri;
-    private String currentPhotoPath;//실제 사진 파일 경로
-    String mImageCaptureName;//이미지 이름
+    private Uri photoUri;
+    private Uri imageUri;
 
-    private final int CAMERA_REQUEST_CODE = 1111;
+    private final int MY_PERMISSION_CAMERA = 1111;
+    private final int CAMERA_REQUEST_CODE = 4;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -171,14 +181,39 @@ public class ImageTransferActivity extends AppCompatActivity {
     }
 
     public void takeCameraAction() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, CAMERA_REQUEST_CODE);
+        String state = Environment.getExternalStorageState();
+
+        if(Environment.MEDIA_MOUNTED.equals(state)) {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            if(cameraIntent.resolveActivity(getPackageManager()) != null) {
+                File photoFile = null;
+
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException e) {
+                    Log.e("captureCamera Error", e.toString());
+                }
+
+                if(photoFile != null) {
+                    Uri providerURI = FileProvider.getUriForFile(this, getPackageName(), photoFile);
+                    imageUri = providerURI;
+
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, providerURI);
+                    startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                }
+            }
+        } else {
+            Toast.makeText(this, "저장공간이 접근 불가능한 기기입니다.", Toast.LENGTH_SHORT).show();
+        }
     }
+
     public void takeAlbumAction() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
         startActivityForResult(intent, 1);
     }
+
     private void refreshMedia(File photoFile) {
         MediaScannerConnection.scanFile(this,
                 new String[] {photoFile.getAbsolutePath()},
@@ -202,7 +237,6 @@ public class ImageTransferActivity extends AppCompatActivity {
         System.out.println("##### " + filePath);
         // 실제 임시파일을 생성
         File tempFile = new File(filePath);
-
 
         return tempFile;
     }
@@ -274,16 +308,17 @@ public class ImageTransferActivity extends AppCompatActivity {
                 break;
 
             case CAMERA_REQUEST_CODE:
-                try {
-                    photoUri = data.getData();
-                } catch (Exception e) {
-                    e.printStackTrace(); break;
+                if(resultCode == Activity.RESULT_OK) {
+                    try {
+                        Log.i("REQUEST_TAKE_PHOTO", "OK");
+                        galleryAddPic();
+                        selectImage.setImageURI(imageUri);
+                    } catch (Exception e) {
+                        Log.e("REQUEST_TAKE_PHOTO", e.toString());
+                    }
+                } else {
+                    Toast.makeText(ImageTransferActivity.this, "사진찍기를 취소하였습니다.", Toast.LENGTH_SHORT).show();
                 }
-
-                Intent cameraIntent = new Intent("com.android.camera.action.CROP");
-                cameraIntent.setDataAndType(photoUri, "image/*");
-
-                startActivityForResult(cameraIntent, 2);
 
             default:
                 System.out.println("!!!!!1취소");
@@ -311,6 +346,63 @@ public class ImageTransferActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void galleryAddPic() {
+        Log.i("galleryAddPic", "Call");
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+
+        File f = new File(absoultePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        sendBroadcast(mediaScanIntent);
+        Toast.makeText(this, "사진이 앨범에 저장되었습니다.", Toast.LENGTH_SHORT).show();
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG" + timeStamp + ".jpg";
+        File storageDir = new File(Environment.getExternalStorageDirectory() + "/Pictures", "DKEIS"); //test라는 경로에 이미지를 저장하기 위함
+
+        if (!storageDir.exists()) {
+            Log.i("mCurrentPhotoPath1", storageDir.toString());
+            storageDir.mkdirs();
+        }
+
+        File image = new File(storageDir, imageFileName);
+        absoultePath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void checkPermission() {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if((ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) ||
+                    (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA))) {
+                new AlertDialog.Builder(this)
+                        .setTitle("알림")
+                        .setMessage("저장소 권한이 거부되었습니다. 사용을 원하시면 설정에서 해당 권한을 직접 허용하셔야 합니다.")
+                        .setNeutralButton("설정", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.setData(Uri.parse("package:" + getPackageName()));
+                                startActivity(intent);
+                            }
+                        })
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .create()
+                        .show();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, MY_PERMISSION_CAMERA);
+            }
         }
     }
 }
