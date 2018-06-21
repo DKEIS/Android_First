@@ -1,6 +1,8 @@
 package com.example.hyojong.dkeis;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,12 +11,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +38,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class ImageTransferActivity extends AppCompatActivity {
@@ -40,12 +49,17 @@ public class ImageTransferActivity extends AppCompatActivity {
     private TextView content;
     private ImageView selectImage;
     private ImageView styleimage;
-    private ImageView changeImage;
+    private ImageView changeButton;
     private String path, userURL, styleURL;
     private String filePath;
     private String absoultePath;
 
     Uri photoUri;
+    private Uri imageUri;
+
+    private final int MY_PERMISSION_CAMERA = 1111;
+    private final int CAMERA_REQUEST_CODE = 4;
+
     private String currentPhotoPath;//실제 사진 파일 경로
     String mImageCaptureName;//이미지 이름
 
@@ -58,21 +72,44 @@ public class ImageTransferActivity extends AppCompatActivity {
         //actionBar = getSupportActionBar();
         //actionBar.hide();
 
+        Toolbar transferToolbar = (Toolbar) findViewById(R.id.transferToolbar);
+        setSupportActionBar(transferToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("화풍");
+
         Intent intent = getIntent();
         userUid = intent.getStringExtra("userUid");
 
-        content = (TextView) findViewById(R.id.content);
-        content.setText("바꾸고 싶은 이미지를 집어넣어라!!");
 
+        changeButton = (ImageView)findViewById(R.id.changeButton);
         selectImage = (ImageView)findViewById(R.id.cameraimage);
         styleimage = (ImageView)findViewById(R.id.paintimage);
-        changeImage = (ImageView)findViewById(R.id.albumimage);
+
 
         // 자신의 사진 선택
         selectImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                takeAlbumAction();
+                String imageSelect[] = new String[] {"사진 촬영", "앨범에서 가져오기"};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(ImageTransferActivity.this);
+                builder.setTitle("이미지 선택");
+                builder.setItems(imageSelect, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch(which) {
+                            case 0:
+                                takeCameraAction();
+                                break;
+                            case 1:
+                                takeAlbumAction();
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+
+                });
+                builder.show();
             }
         });
 
@@ -86,7 +123,7 @@ public class ImageTransferActivity extends AppCompatActivity {
         });
 
         // 변환
-        changeImage.setOnClickListener(new View.OnClickListener() {
+        changeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (absoultePath == null || styleURL == null) {
@@ -104,9 +141,10 @@ public class ImageTransferActivity extends AppCompatActivity {
                                 @Override
                                 public void onCompleted(Exception e, com.koushikdutta.ion.Response<String> result) {
                                     try {
-                                        System.out.println("************* 2");
-                                        userURL = "http://114.70.234.121:3004/transfer/trans-" + (absoultePath.split("/")[absoultePath.split("/").length - 1]);
-                                        //System.out.println("@@@@@@@@@@@@@@@@@@@" + userURL);
+                                        userURL = "http://114.70.234.121:3004/transfer/trans-" + styleURL.split("/")[styleURL.split("/").length-1].replaceAll(".jpg","") +(absoultePath.split("/")[absoultePath.split("/").length - 1]);
+                                       //  userURL = "http://114.70.234.121:3004/transfer/trans-" + (absoultePath.split("/")[absoultePath.split("/").length - 1]);
+                                        System.out.println("@@@@@@@@@@@@@@@@@@@" + styleURL);
+                                        System.out.println("@@@@@@@@@@@@@@@@@@@" + userURL);
                                         //String msg = result.getResult();
 
                                         //Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
@@ -125,6 +163,45 @@ public class ImageTransferActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
+                finish();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void takeCameraAction() {
+        String state = Environment.getExternalStorageState();
+
+        if(Environment.MEDIA_MOUNTED.equals(state)) {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            if(cameraIntent.resolveActivity(getPackageManager()) != null) {
+                File photoFile = null;
+
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException e) {
+                    Log.e("captureCamera Error", e.toString());
+                }
+
+                if(photoFile != null) {
+                    Uri providerURI = FileProvider.getUriForFile(this, getPackageName(), photoFile);
+                    imageUri = providerURI;
+
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, providerURI);
+                    startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                }
+            }
+        } else {
+            Toast.makeText(this, "저장공간이 접근 불가능한 기기입니다.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void takeAlbumAction() {
@@ -276,6 +353,19 @@ public class ImageTransferActivity extends AppCompatActivity {
                 }
                 break;
 
+            case CAMERA_REQUEST_CODE:
+                if(resultCode == Activity.RESULT_OK) {
+                    try {
+                        Log.i("REQUEST_TAKE_PHOTO", "OK");
+                        galleryAddPic();
+                        selectImage.setImageURI(imageUri);
+                    } catch (Exception e) {
+                        Log.e("REQUEST_TAKE_PHOTO", e.toString());
+                    }
+                } else {
+                    Toast.makeText(ImageTransferActivity.this, "사진찍기를 취소하였습니다.", Toast.LENGTH_SHORT).show();
+                }
+
             default:
                 System.out.println("!!!!!1취소");
                 break;
@@ -303,5 +393,32 @@ public class ImageTransferActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void galleryAddPic() {
+        Log.i("galleryAddPic", "Call");
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+
+        File f = new File(absoultePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        sendBroadcast(mediaScanIntent);
+        Toast.makeText(this, "사진이 앨범에 저장되었습니다.", Toast.LENGTH_SHORT).show();
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG" + timeStamp + ".jpg";
+        File storageDir = new File(Environment.getExternalStorageDirectory() + "/Pictures", "DKEIS"); //test라는 경로에 이미지를 저장하기 위함
+
+        if (!storageDir.exists()) {
+            Log.i("mCurrentPhotoPath1", storageDir.toString());
+            storageDir.mkdirs();
+        }
+
+        File image = new File(storageDir, imageFileName);
+        absoultePath = image.getAbsolutePath();
+        return image;
     }
 }

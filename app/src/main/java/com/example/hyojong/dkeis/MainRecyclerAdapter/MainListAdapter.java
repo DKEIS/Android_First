@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,13 +34,15 @@ public class MainListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         TextView listName, listContent;
         CardView cardView;
         LinearLayout linearLayout;
+        ImageView mainImage;
 
         public ViewHolder(View view) {
             super(view);
             listName = (TextView) view.findViewById(R.id.listName);
-            listContent = (TextView) view.findViewById(R.id.listContent);
+            //listContent = (TextView) view.findViewById(R.id.listContent);
             cardView = (CardView) view.findViewById(R.id.cardView_main);
-            linearLayout = (LinearLayout) view.findViewById(R.id.linearlayout_main);
+            //linearLayout = (LinearLayout) view.findViewById(R.id.linearlayout_main);
+            mainImage = (ImageView) view.findViewById(R.id.mainImage);
         }
     }
 
@@ -62,18 +65,15 @@ public class MainListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         final MainListItem listItem = mainListItemArrayList.get(position);
         viewHolder.listName.setText(listItem.getListName());
-        viewHolder.listContent.setText(listItem.getListContent());
-        viewHolder.linearLayout.setBackgroundResource(listItem.getListImage());
+        //viewHolder.listContent.setText(listItem.getListContent());
+        viewHolder.mainImage.setBackgroundResource(listItem.getListImage());
 
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int listNumber = listItem.getListNumber();
-
                 switch (listNumber) {
                     case 1:     // 1번 CardView : 화풍 바꿔주는 Activity로 이동
-                        viewHolder.listName.setTextColor(Color.WHITE);
-                        viewHolder.listContent.setTextColor(Color.WHITE);
                         Intent intent1 = new Intent(parentActivity, ImageTransferActivity.class);
                         parentActivity.startActivity(intent1);
                         break;
@@ -85,7 +85,6 @@ public class MainListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         });
     }
-
 
     @Override
     public int getItemCount() {

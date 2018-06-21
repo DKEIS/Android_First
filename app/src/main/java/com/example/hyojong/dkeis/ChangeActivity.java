@@ -16,10 +16,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -65,12 +68,10 @@ import java.security.NoSuchAlgorithmException;
 
 public class ChangeActivity extends AppCompatActivity {
 
-    private TextView changeText;
     private ImageView changeImage;
-    private String msg;
     private String userURL;
-    private Button downloadBtn;
-    private ImageButton kakaoBtn;
+    private FloatingActionButton downloadBtn;
+    private FloatingActionButton kakaoBtn;
     Bitmap mSaveBm;
     Context context;
     String linkURL;
@@ -83,9 +84,11 @@ public class ChangeActivity extends AppCompatActivity {
         context = ChangeActivity.this;
 
         setContentView(R.layout.activity_change);
-        final String kakaoURL = "http://114.70.235.44:18081/capstone/style/1.jpg";
-        final String kakaoText = "테스트";
-        final String kakaoURLtest = "http://114.70.235.44:18081/capstone/style/1.jpg";
+
+        Toolbar transferToolbar = (Toolbar) findViewById(R.id.changeToolbar);
+        setSupportActionBar(transferToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("결과");
 
        /* try {
             kakaoLink = KakaoLink.getKakaoLink(ChangeActivity.this);
@@ -116,7 +119,7 @@ public class ChangeActivity extends AppCompatActivity {
         changeText.setText(msg);*/
 
       //  msg = getIntent().getStringExtra("msg");
-        kakaoBtn = (ImageButton) findViewById(R.id.kakaoBtn);
+        kakaoBtn = (FloatingActionButton) findViewById(R.id.kakaoBtn);
         kakaoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -145,7 +148,6 @@ public class ChangeActivity extends AppCompatActivity {
                     //sendMessage(msgBuilder, context);
                    // kakaoLink.sendMessage(msgBuilder, getApplicationContext());
 */                  linkURL = "http:114.70.234.121:3004";
-                    String test = "/main/ranking/read.nhn?mid=etc&sid1=111&rankingType=popular_day&oid=052&aid=0001159495&date=20180620&type=2&rankingSeq=1&rankingSectionId=100";
 
                     FeedTemplate params = FeedTemplate
                             .newBuilder(ContentObject.newBuilder("제가 꾸민 사진이에요!",
@@ -188,10 +190,10 @@ public class ChangeActivity extends AppCompatActivity {
 
         });
         userURL = getIntent().getStringExtra("userURL");
-        changeText = (TextView)findViewById(R.id.changeText);
+
        // changeText.setText(msg);
 
-        downloadBtn = (Button)findViewById(R.id.downloadBtn);
+        downloadBtn = (FloatingActionButton) findViewById(R.id.downloadBtn);
 
         LoadImageTask loadImageTask = new LoadImageTask();
         loadImageTask.execute();
@@ -410,6 +412,16 @@ public class ChangeActivity extends AppCompatActivity {
             mSaveBm = bm;
             bmImage.setImageBitmap(bm);
         }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:{ //toolbar의 back키 눌렀을 때 동작
+                finish();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

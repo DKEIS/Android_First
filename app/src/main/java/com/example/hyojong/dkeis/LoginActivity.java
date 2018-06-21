@@ -59,8 +59,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         } catch (NoSuchAlgorithmException e) {
 
         }
-        actionBar = getSupportActionBar();
-        actionBar.hide();
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -87,8 +85,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             }
         });
 
-        text1 = (TextView)findViewById(R.id.text1);
-        text2 = (TextView)findViewById(R.id.text2);
     }
 
     @Override
